@@ -2,6 +2,9 @@
 
 namespace app\models;
 
+use Yii;
+use app\exceptions\EntityNotFound;
+use app\exceptions\AuthenticationException;
 use app\models\AccessToken;
 
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
@@ -10,9 +13,28 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public $username;
     public $email;
     public $password;
+    public $hash;
     public $role;
 
     public $createdAt;
+
+    /**
+     * @param string $email
+     * @param string $password
+     * @return string $accessToken
+    */
+    public static function login($email, $password)
+    {
+        $user = User::findByEmail($email);
+        if ($user === null) {
+            throw new EntityNotFound("User", ["email"=>$email]);
+        }
+        if (!Yii::$app->getSecurity()->validatePassword($password, $user->hash)){
+            throw new AuthenticationException("invalid password");
+        } 
+        $token = AccessToken::generateNewToken($user);
+        return $token->token;
+    }
 
     /**
      * {@inheritdoc}

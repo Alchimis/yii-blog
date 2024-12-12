@@ -2,6 +2,8 @@
 
 namespace app\models;
 
+use Yii;
+
 class AccessToken extends \yii\db\ActiveRecord {
     public $id;
     public $userId;
@@ -46,4 +48,18 @@ class AccessToken extends \yii\db\ActiveRecord {
     {
         return $this->expiredAt;
     } 
+
+    /**
+     * @param \app\models\User $user
+     * @return AccessToken $token 
+    */
+    public static function generateNewToken($user)
+    {
+        $stringToken = Yii::$app->getSecurity()->generateRandomString(32);
+        $token = new AccessToken();
+        $token->userId = $user->id;
+        $token->token = $stringToken;
+        $token->save();
+        return $token;
+    }
 }

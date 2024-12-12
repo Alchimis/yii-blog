@@ -17,6 +17,7 @@ class m241210_132504_create_user_table extends Migration
             'username' => $this->string(255)->unique()->notNull(),
             'email' => $this->string(255)->unique()->notNull(),
             'password' => $this->string(255)->notNull(),
+            'hash' => $this->string(255)->notNull(),
             'role' => $this->string(63)->notNull(),
             'createdAt' => $this->timestamp()->defaultExpression('now()'), 
         ]);
