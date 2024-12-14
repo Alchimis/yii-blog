@@ -4,6 +4,7 @@ namespace app\models;
 
 use Yii;
 use yii\base\Model;
+use app\validators\PasswordValidator;
 
 
 class LoginRequest extends Model 
@@ -22,13 +23,6 @@ class LoginRequest extends Model
 
     public function validatePassword($attribute, $params)
     {
-        if (!is_string($attribute)) {
-            $this->addError('password should be string');
-            return;
-        }
-        if (strlen($attribute) <= 3) {
-            $this->addError('password should be longer than 3 characters');
-            return;
-        }
+        return PasswordValidator::validatePassword($this, $attribute, $params);
     }
 }

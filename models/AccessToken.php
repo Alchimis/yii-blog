@@ -3,6 +3,7 @@
 namespace app\models;
 
 use Yii;
+use User;
 
 class AccessToken extends \yii\db\ActiveRecord {
     public $id;
@@ -51,15 +52,62 @@ class AccessToken extends \yii\db\ActiveRecord {
 
     /**
      * @param \app\models\User $user
+     * @param \DateTime 
      * @return AccessToken $token 
     */
     public static function generateNewToken($user)
     {
         $stringToken = Yii::$app->getSecurity()->generateRandomString(32);
         $token = new AccessToken();
-        $token->userId = $user->id;
-        $token->token = $stringToken;
-        $token->save();
+        $token->setAttributes([
+            'token' => $stringToken,
+            'userId' => $user->getId(),
+        ]);
         return $token;
+    }
+
+    public function getId()
+    {
+        if (is_null($this->id))
+        {
+            return $this->getAttribute('id');
+        }
+        return $this->id;
+    }
+
+    public function getUserId()
+    {
+        if (is_null($this->userId))
+        {
+            return $this->getAttribute('userId');
+        }
+        return $this->userId;
+    }
+
+    public function getToken()
+    {
+        if (is_null($this->token))
+        {
+            return $this->getAttribute('token');
+        }
+        return $this->token;
+    }
+
+    public function getCreatedAt()
+    {
+        if (is_null($this->createdAt))
+        {
+            return $this->getAttribute('createdAt');
+        }
+        return $this->createdAt;
+    }
+
+    public function getExpiredAr()
+    {
+        if (is_null($this->expiredAt))
+        {
+            return $this->getAttribute('expiredAt');
+        }
+        return $this->expiredAt;
     }
 }

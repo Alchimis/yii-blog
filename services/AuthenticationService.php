@@ -5,8 +5,11 @@ namespace app\services;
 use Yii;
 use app\models\LoginRequest;
 use app\models\User;
+use app\models\RegisterRequest;
 use app\exceptions\AuthenticationException;
 use app\exceptions\EntityNotFound;
+use app\models\AccessToken;
+use app\helpers\JsonProcessor;
 
 class AuthenticationService extends \yii\base\BaseObject {
     /**
@@ -15,10 +18,38 @@ class AuthenticationService extends \yii\base\BaseObject {
     */
     public function register($request)
     {
+        if (!$request->isPost) {
+            return AuthenticationService::methodNotAllowed($request->method);
+        }
+        $registerRequest = new RegisterRequest();
+        $registerRequest->setAttributes($request->post());
+        if (!$registerRequest->validate()) {
+            return JsonProcessor::processJson($registerRequest->errors);
+        }
+        $user = new User();
         
-    return "{
-    \"hello\": \"world\" 
-}";
+        $hashedPassword = Yii::$app->getSecurity()->generatePasswordHash($registerRequest->password);
+        $user->setAttributes([
+            'email' => $registerRequest->email, 
+            'password' => $registerRequest->password,
+            'username' => $registerRequest->username,
+            'role' => User::USER_ROLE,
+            'hash' => $hashedPassword,
+        ]);
+        try {
+            $user->registerUser();
+        } catch (\yii\db\IntegrityException $e) {
+            return JsonProcessor::processJson(["error" => "user already exists"], 404);
+        } catch (\Exception $e) {
+            return JsonProcessor::processJson(["error" => "internal service error"], 500);
+        }
+        try {
+            $accessToken = AccessToken::generateNewToken($user);
+            $accessToken->save();
+            return JsonProcessor::processJson(["accessToken"=>$accessToken->getOldAttributes()['token']]);
+        } catch (\Exception $e) {
+            return JsonProcessor::processJson(["error"=>"internal service error"], 500);
+        }
     }
 
     /**
@@ -28,25 +59,30 @@ class AuthenticationService extends \yii\base\BaseObject {
     public function login($request)
     {
         if (!$request->isPost) {
-            return "{\"method\": \"POST\"}";
+            return AuthenticationService::methodNotAllowed($request->method);
         }
         $loginRequest = new LoginRequest();
         $loginRequest->setAttributes($request->post());
         if (!$loginRequest->validate()) {
-            Yii::$app->response->format = \Yii\web\Response::FORMAT_JSON;
-            Yii::$app->response->statusCode = 404;
-            return json_encode($loginRequest->errors);
+            return JsonProcessor::processJson($loginRequest->errors);
         }
         try{
             $accessToken = User::login($loginRequest->email, $loginRequest->password);
         } catch (AuthenticationException $e){
-            Yii::$app->response->statusCode = 404;
-            return "{\"error\":\"invalid email or password\"}"; 
+            return JsonProcessor::processJson(["error"=>"invalid email or password"]); 
         } catch (EntityNotFound $e) {
-            Yii::$app->response->statusCode = 404;
-            return "{\"error\":\"invalid email or password\"}";
+            return JsonProcessor::processJson(["error"=>"invalid email or password"]);
         }
-        Yii::$app->response->format = \Yii\web\Response::FORMAT_JSON;
-        return "{\"accessToken\":\"".$accessToken."\"}";
+        return JsonProcessor::processJson(["accessToken"=>$accessToken]);
+    }
+
+
+    /**
+     * @param string $method
+     * @return string $result
+    */
+    public static function methodNotAllowed($method)
+    {
+        return JsonProcessor::processJson(["error"=>"method ".$method." is not allowed"], 405);
     }
 }
