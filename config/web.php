@@ -57,8 +57,9 @@ $config = [
     'params' => $params,
     'container' => [
         'definitions' => [
+            \app\services\AuthenticateUserServiceBase::class => \app\services\AuthenticateUserServiceBase::class,
             \app\services\AuthenticationService::class => \app\services\AuthenticationService::class,
-        ]
+        ],
     ],
 ];
 

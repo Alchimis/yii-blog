@@ -2,11 +2,11 @@
 
 namespace app\models;
 
+use app\models\AccessToken;
 use Yii;
 use app\exceptions\EntityNotFound;
 use app\exceptions\AuthenticationException;
 use app\exceptions\AlreadyExistsException;
-use app\models\AccessToken;
 use app\validators\PasswordValidator;
 
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
@@ -32,7 +32,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     {
         $user = User::findByEmail($email);
         if ($user === null) {
-            throw new EntityNotFound("User", ["email"=>$email]);
+            throw EntityNotFound::entity("User", ["email"=>$email]);
         }
         if (!Yii::$app->getSecurity()->validatePassword($password, $user->getHash())){
             throw new AuthenticationException("invalid password");
@@ -64,7 +64,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
             ['username','string'],
             ['password', 'string'],
             ['hash', 'string'],
-            ['role', 'string']
+            ['role', 'string'],
             ['username', 'validateUsername'],
         ];
     }
@@ -131,6 +131,23 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         ]);
         return $user;
     }
+
+    /**
+     * @param string $token
+     * @return ?User $user
+     * 
+     * @throws EntityNotFound 
+    */
+    public static function findUserByToken($token)
+    {
+        $token = AccessToken::findByToken($token);
+        if (is_null($token))
+        {
+            throw EntityNotFound::entity('Token', ['token']);
+        }
+        $user = $token->getAttachedUser();
+        return $user;
+    } 
 
     /**
      * Finds user by username

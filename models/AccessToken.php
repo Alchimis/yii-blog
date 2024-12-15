@@ -3,7 +3,7 @@
 namespace app\models;
 
 use Yii;
-use User;
+use app\models\User;
 
 class AccessToken extends \yii\db\ActiveRecord {
     public $id;
@@ -63,7 +63,14 @@ class AccessToken extends \yii\db\ActiveRecord {
             'token' => $stringToken,
             'userId' => $user->getId(),
         ]);
+        $token->setAttribute('token', $stringToken);
+        $token->setAttribute('userId', $user->getId());
         return $token;
+    }
+
+    public function getAttachedUser()
+    {
+        return User::findOne(['id'=>$this->getUserId()]);
     }
 
     public function getId()
@@ -109,5 +116,19 @@ class AccessToken extends \yii\db\ActiveRecord {
             return $this->getAttribute('expiredAt');
         }
         return $this->expiredAt;
+    }
+
+    public function getUser()
+    {
+        return $this->hasOne(User::class, ['id' => $this->getUserId()]);
+    }
+
+    /**
+     * @param string $token
+     * @return bool
+    */
+    public static function isTokenValid($token)
+    {
+        return true;
     }
 }

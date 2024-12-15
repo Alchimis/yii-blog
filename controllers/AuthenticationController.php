@@ -28,6 +28,6 @@ class AuthenticationController extends \yii\rest\Controller
 
     public function actionLogin()
     {
-        return  $this->getAuthenticationService()->login($this->request);
+        return $this->getAuthenticationService()->login($this->request);
     }
 }
