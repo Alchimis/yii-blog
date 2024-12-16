@@ -11,13 +11,13 @@ use app\validators\PasswordValidator;
 
 class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
 {
-    public $id;
-    public $username;
-    public $email;
-    public $password;
-    public $hash;
-    public $role;
-    public $createdAt;
+    private $id;
+    private $username;
+    private $email;
+    private $password;
+    private $hash;
+    private $role;
+    private $createdAt;
 
     
     const ADMIN_ROLE = "ADMIN"; 
@@ -157,7 +157,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public static function findByUsername($username)
     {
-        return null;
+        return User::findOne([
+            'username' => $username
+        ]);
     }
 
     /**
@@ -214,13 +216,65 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         return $this->username;
     }
 
+    public function getRole()
+    {
+        if (is_null($this->role))
+        {
+            return $this->getAttribute('role');
+        }
+        return $this->role;
+    }
+
+    public function isAdmin()
+    {
+        return $this->getRole() === User::ADMIN_ROLE;
+    }
+
+    public function getPassword()
+    {
+        if ($this->password === null)
+        {
+            return $this->getAttribute('password');
+        }
+        return $this->password;
+    }
 
     public function getHash()
     {
-        if ($this->hash === null) 
+        if ($this->hash === null)
         {
             return $this->getAttribute('hash');
         }
         return $this->hash;
+    }
+
+    public function getCreatedAt()
+    {
+
+    }
+
+    public function getAttributes($names = null, $except = [])
+    {
+        $attributes = [
+            'id' => $this->getId(),
+            'username' => $this->getUsername(),
+            'password' => $this->getPassword(),
+            'hash' => $this->getHash(),
+            'role' => $this->getRole(),
+            'createdAt' => $this->getCreatedAt(),
+        ];
+        $result = [];
+        if ($names === null)
+        {
+            $result = $attributes;
+        } else {
+            foreach ($names as $name) {
+                $result[$name] = $attributes['name'];
+            }
+        }
+        foreach ($except as $exceptAttribute) {
+            unset($result[$exceptAttribute]);
+        }
+        return $result;
     }
 }

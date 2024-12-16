@@ -37,10 +37,11 @@ class AuthenticationService extends \yii\base\BaseObject {
             'hash' => $hashedPassword,
         ]);
         try {
-            $user->registerUser();
+            $user->save();
         } catch (\yii\db\IntegrityException $e) {
             return JsonProcessor::processJson(["error" => "user already exists"], 404);
-        } catch (\Exception $e) {
+        } 
+        catch (\Exception $e) {
             return JsonProcessor::processJson(["error" => "internal service error"], 500);
         }
         try {

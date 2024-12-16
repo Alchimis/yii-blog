@@ -30,4 +30,13 @@ class AuthenticationController extends \yii\rest\Controller
     {
         return $this->getAuthenticationService()->login($this->request);
     }
+
+    public function actionTest()
+    {
+        $query = \app\models\User::find()->where([
+            'id' => 1
+        ]);
+
+        return \app\helpers\JsonProcessor::processJson($query->one()->id);
+    }
 }

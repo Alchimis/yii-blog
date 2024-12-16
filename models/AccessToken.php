@@ -6,11 +6,11 @@ use Yii;
 use app\models\User;
 
 class AccessToken extends \yii\db\ActiveRecord {
-    public $id;
-    public $userId;
-    public $token;
-    public $createdAt;
-    public $expiredAt;
+    private $id;
+    private $userId;
+    private $token;
+    private $createdAt;
+    private $expiredAt;
 
     /**
      * @param string $token

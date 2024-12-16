@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\AccessToken;
 use yii\data\ActiveDataProvider;
 use yii\web\Controller;
@@ -13,6 +14,12 @@ use yii\filters\VerbFilter;
  */
 class AdminAccessTokenController extends Controller
 {
+
+    public static function getAuthenticateUserService()
+    {
+        return Yii::$container->get(\app\services\AuthenticateUserServiceBase::class);
+    }
+
     /**
      * @inheritDoc
      */

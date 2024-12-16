@@ -21,6 +21,8 @@ class AuthenticateUserServiceBase extends \yii\base\BaseObject {
       * 
       * header: X-Auth-Token 
       * @throws \app\exceptions\HeaderNotSetException
+      * @throws \app\exceptions\EntityNotFound
+      * @throws \InvalidArgumentExceptions
       *
       * @param Request $request
       * @return ?User $user
