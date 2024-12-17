@@ -2,6 +2,7 @@
 
 namespace app\models;
 
+use app\contracts\QueryFilter;
 use yii\db\ActiveRecord;
 use app\models\User;
 
@@ -68,5 +69,17 @@ class BlogPost extends ActiveRecord
     public static function tableName()
     {
         return '{{%blogPost}}';
+    }
+
+    /**
+     * @param QueryFilter $filter
+     * 
+     * @return []BlogPost
+    */
+    public static function applyQueryFilter(QueryFilter $filter)
+    {
+        $query = BlogPost::find();
+        $query = $filter->apply($query);
+        return $query->all();
     }
 }

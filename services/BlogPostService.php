@@ -5,8 +5,10 @@ namespace app\services;
 use app\exceptions\EntityNotFound;
 use app\helpers\JsonProcessor;
 use app\models\BlogPost;
+use app\models\GetBlogsRequest;
 use app\models\PublishPostRequest;
 use app\exceptions\HeaderNotSetException;
+use app\models\User;
 use Exception;
 use InvalidArgumentException;
 use Yii;
@@ -72,5 +74,30 @@ class BlogPostService extends BaseObject
         }
 
         return JsonProcessor::processJson(['postId'=>$post->getId()]);
+    }
+
+    /**
+     * @param Request $request
+    */
+    public function getPosts($request)
+    {
+        if (!$request->isGet)
+        {
+            return JsonProcessor::processJson([
+                'error' => 'method not allowed'
+            ], 405);
+        }
+        $getPostRequest = new GetBlogsRequest();
+        //return JsonProcessor::processJson($request->post());
+        $getPostRequest->setAttributes($request->post());
+        if (!$getPostRequest->validate()) 
+        {
+            return JsonProcessor::processJson([
+                'errors' => $getPostRequest->getErrors(),
+            ], 400);
+        }
+        //return JsonProcessor::processJson($getPostRequest);
+        $posts = BlogPost::applyQueryFilter($getPostRequest);
+        return JsonProcessor::processJson(['posts' => $posts]);
     }
 }

@@ -20,4 +20,9 @@ class BlogPostController extends Controller
     {
         return BlogPostController::getBlogPostService()->publishPost($this->request);
     }  
+
+    public function actionGetPosts()
+    {
+        return BlogPostController::getBlogPostService()->getPosts($this->request);
+    }
 }
