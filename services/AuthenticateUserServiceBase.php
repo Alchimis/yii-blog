@@ -14,7 +14,7 @@ use app\exceptions\EntityNotFound;
 class AuthenticateUserServiceBase extends \yii\base\BaseObject {
 
     const AUTH_HEADER = 'X-Auth-Token';
-    const BEARER_REGEXP = "/^Bearer: (+{12,})$/";
+    const BEARER_REGEXP = "/^Bearer: ([A-Za-z0-9_-]{12,})$/";
 
     /**
       * Collects auth token from request headers and authenticate user by token.
@@ -36,7 +36,7 @@ class AuthenticateUserServiceBase extends \yii\base\BaseObject {
         }
         
         if (is_array($authHeader)) {
-            $authHeader = $authHeader[0];
+            $authHeader = $authHeader[1];
         }
 
         if (!preg_match(AuthenticateUserServiceBase::BEARER_REGEXP, $authHeader, $matches)){
@@ -55,5 +55,12 @@ class AuthenticateUserServiceBase extends \yii\base\BaseObject {
         
         $user = User::findOne(['id' => $accessToken->getUserId()]);
         return $user;
+    }
+    /**
+     * @return ["user" => User, "accessToken" => AccessToken]
+    */
+    public static function registerUserFromParams($params)
+    {
+        
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-use app\models\User;
+use app\models\BlogPost;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
@@ -9,15 +9,15 @@ use yii\grid\GridView;
 /** @var yii\web\View $this */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Users';
+$this->title = 'Blog Posts';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
-<div class="user-index">
+<div class="blog-post-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
     <p>
-        <?= Html::a('Create User', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Create Blog Post', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
 
 
@@ -27,16 +27,15 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'username',
-            'email:email',
-            'password',
-            'role',
-            //'createdAt',
+            'authorId',
+            'title',
+            'content',
+            'createdAt',
             [
                 'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, User $model, $key, $index, $column) {
+                'urlCreator' => function ($action, BlogPost $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                }
+                 }
             ],
         ],
     ]); ?>

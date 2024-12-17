@@ -59,6 +59,7 @@ $config = [
         'definitions' => [
             \app\services\AuthenticateUserServiceBase::class => \app\services\AuthenticateUserServiceBase::class,
             \app\services\AuthenticationService::class => \app\services\AuthenticationService::class,
+            \app\services\BlogPostService::class => \app\services\BlogPostService::class,
         ],
     ],
 ];
