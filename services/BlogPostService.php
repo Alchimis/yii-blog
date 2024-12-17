@@ -88,7 +88,6 @@ class BlogPostService extends BaseObject
             ], 405);
         }
         $getPostRequest = new GetBlogsRequest();
-        //return JsonProcessor::processJson($request->post());
         $getPostRequest->setAttributes($request->post());
         if (!$getPostRequest->validate()) 
         {
@@ -96,6 +95,46 @@ class BlogPostService extends BaseObject
                 'errors' => $getPostRequest->getErrors(),
             ], 400);
         }
+        $posts = BlogPost::applyQueryFilter($getPostRequest);
+        return JsonProcessor::processJson(['posts' => $posts]);
+    }
+    /**
+     * @param Request $request
+    */
+    public function getMyPosts($request)
+    {
+        if (!$request->isGet)
+        {
+            return JsonProcessor::processJson([
+                'error' => 'method not allowed'
+            ], 405);
+        }
+
+        try {
+            $user = BlogPostService::getUserAuthenticationService()::authenticateUserFromRequest($request);
+        } 
+        catch (HeaderNotSetException $e)
+        {
+            return JsonProcessor::processJson(['error'=>'header not set', 'details'=>$e->getMessage()], 400);
+        }
+        catch (EntityNotFound $e)
+        {
+            return JsonProcessor::processJson([ 'error' => 'access denied' ], 401);
+        } 
+        catch (InvalidArgumentException $e)
+        {
+            return JsonProcessor::processJson([ 'error' => 'access denied' ], 401);
+        }
+
+        $getPostRequest = new GetBlogsRequest();
+        $getPostRequest->setAttributes($request->post());
+        if (!$getPostRequest->validate()) 
+        {
+            return JsonProcessor::processJson([
+                'errors' => $getPostRequest->getErrors(),
+            ], 400);
+        }
+        $getPostRequest->authorId = $user->getId();
         //return JsonProcessor::processJson($getPostRequest);
         $posts = BlogPost::applyQueryFilter($getPostRequest);
         return JsonProcessor::processJson(['posts' => $posts]);
