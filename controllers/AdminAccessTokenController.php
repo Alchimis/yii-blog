@@ -28,6 +28,20 @@ class AdminAccessTokenController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'only' => ['index', 'view', 'create', 'delete', 'update'],
+                    'rules'=> [
+                        [
+                            'actions' => ['index', 'view', 'create', 'delete', 'update'],
+                            'allow' => true,
+                            'matchCallback' => function ($rule, $action) {
+                                return Yii::$app->user->identity->isAdmin();
+                            },
+                            'roles' => ['@'],
+                        ]
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
                     'actions' => [

@@ -2,8 +2,10 @@
 
 namespace app\controllers;
 
+use Yii;
 use app\models\BlogPost;
 use yii\data\ActiveDataProvider;
+use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -20,7 +22,21 @@ class AdminBlogPostController extends Controller
     {
         return array_merge(
             parent::behaviors(),
-            [
+            [   
+                'access' => [
+                    'class' => AccessControl::className(),
+                    'only' => ['index', 'view', 'create', 'delete', 'update'],
+                    'rules'=> [
+                        [
+                            'actions' => ['index', 'view', 'create', 'delete', 'update'],
+                            'allow' => true,
+                            'matchCallback' => function ($rule, $action) {
+                                return Yii::$app->user->identity->isAdmin();
+                            },
+                            'roles' => ['@'],
+                        ]
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::className(),
                     'actions' => [

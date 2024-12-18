@@ -34,7 +34,7 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
         if ($user === null) {
             throw EntityNotFound::entity("User", ["email"=>$email]);
         }
-        if (!Yii::$app->getSecurity()->validatePassword($password, $user->getHash())){
+        if (!$user->validateAsUserPassword($password)){
             throw new AuthenticationException("invalid password");
         } 
         $user->id = $user->getAttribute('id');
@@ -72,6 +72,11 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
     public function validatePassword($attribute, $params)
     {
         return PasswordValidator::validatePassword($this, $attribute, $params);
+    }
+
+    public function validateAsUserPassword($password)
+    {
+        return Yii::$app->getSecurity()->validatePassword($password, $this->getHash());
     }
 
     public function validateUsername($attribute, $params) 
@@ -191,7 +196,9 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function getAuthKey()
     {
-        return $this->authKey;
+        $token = AccessToken::generateNewToken($this);
+        $token->save();
+        return $token->getToken();
     }
 
     /**
@@ -199,7 +206,12 @@ class User extends \yii\db\ActiveRecord implements \yii\web\IdentityInterface
      */
     public function validateAuthKey($authKey)
     {
-        return $this->authKey === $authKey;
+        $token = AccessToken::findByToken($authKey);
+        if (is_null($token))
+        {
+            return false;
+        }
+        return ($this->getId() === $token->getAttachedUser()->getId()) && ($token->getToken() === $authKey);
     }
     
     public static function tableName() 

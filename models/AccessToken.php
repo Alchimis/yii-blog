@@ -59,10 +59,6 @@ class AccessToken extends \yii\db\ActiveRecord {
     {
         $stringToken = Yii::$app->getSecurity()->generateRandomString(32);
         $token = new AccessToken();
-        $token->setAttributes([
-            'token' => $stringToken,
-            'userId' => $user->getId(),
-        ]);
         $token->setAttribute('token', $stringToken);
         $token->setAttribute('userId', $user->getId());
         return $token;

@@ -16,15 +16,16 @@ class PasswordValidator {
     public static function validatePassword($parent, $attribute, $params){
         if (!is_string($attribute)) {
             $parent->addError('password should be string');
-            return;
+            return false;
         }
         if (ctype_space($attribute)) {
             $parent->addError('password should not contain empty space');
-            return;
+            return false;
         }
         if (strlen($attribute) < 8) {
             $parent->addError('password should be longer than 8 characters have'.strlen($attribute));
-            return;
+            return false;
         }
+        return true;
     } 
 }
