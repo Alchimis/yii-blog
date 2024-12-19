@@ -26,16 +26,7 @@ class AuthenticationService extends \yii\base\BaseObject {
         if (!$registerRequest->validate()) {
             return JsonProcessor::processJson($registerRequest->errors);
         }
-        $user = new User();
-        
-        $hashedPassword = Yii::$app->getSecurity()->generatePasswordHash($registerRequest->password);
-        $user->setAttributes([
-            'email' => $registerRequest->email, 
-            'password' => $registerRequest->password,
-            'username' => $registerRequest->username,
-            'role' => User::USER_ROLE,
-            'hash' => $hashedPassword,
-        ]);
+        $user = $registerRequest->makeUserFromRequest();
         try {
             $user->save();
         } catch (\yii\db\IntegrityException $e) {
@@ -68,7 +59,7 @@ class AuthenticationService extends \yii\base\BaseObject {
             return JsonProcessor::processJson($loginRequest->errors);
         }
         try{
-            $accessToken = User::login($loginRequest->email, $loginRequest->password);
+            $accessToken = $loginRequest->loginUserFromRequest();
         } catch (AuthenticationException $e){
             return JsonProcessor::processJson(["error"=>"invalid email or password"]); 
         } catch (EntityNotFound $e) {

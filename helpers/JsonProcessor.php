@@ -16,7 +16,7 @@ class JsonProcessor {
             try {
                 $data = Json::encode($data);
             } catch (yii\base\InvalidArgumentException $e) {
-                return "";
+                $data = "";
             }
         }
         Yii::$app->response->statusCode = $statusCode;

@@ -5,7 +5,7 @@ namespace app\models;
 use Yii;
 use yii\base\Model;
 use app\validators\PasswordValidator;
-
+use app\models\User;
 
 class LoginRequest extends Model 
 {
@@ -24,5 +24,10 @@ class LoginRequest extends Model
     public function validatePassword($attribute, $params)
     {
         return PasswordValidator::validatePassword($this, $attribute, $params);
+    }
+
+    public function loginUserFromRequest()
+    {
+        return User::login($this->email, $this->password);
     }
 }
